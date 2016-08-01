@@ -27,25 +27,18 @@ class ReposDataStore {
         }
     }
     
-    func toggleStarStatusForRepository(repository: GithubRepository,completion: (Bool) -> ()) {
-        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
-        let url = NSURL(string: urlString)
-        let session = NSURLSession.sharedSession()
+    func toggleStarStatusForRepository(repository: GithubRepository,completion: (starred: Bool) -> ()) {
         
-        guard let unwrappedURL = url else { fatalError("Invalid URL") }
-        let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
-        
-        let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue(Secrets.token, forHTTPHeaderField: "Authorization")
-            githubRequest.HTTPMethod = "PUT"
-            if let data = data {githubRequest.HTTPBody = NSData(data: data)}
-            let httpResponse = response as! NSHTTPURLResponse
-            if httpResponse.statusCode == 204 {
-                completion(true)
+        GithubAPIClient.checkIfRepositoryIsStarred(repository.fullName) { (starred) in
+            if starred {
+                GithubAPIClient.unstarRepository(repository, completion: {
+                    completion(starred: false)
+                })
             } else {
-               // completion(GithubAPIClient.unstarRepository())
+                GithubAPIClient.starRepository(repository.fullName, completion: {
+                    completion(starred: true)
+                })
             }
         }
-        task.resume()
     }
 }

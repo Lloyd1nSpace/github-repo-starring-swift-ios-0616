@@ -13,7 +13,6 @@ class GithubAPIClient {
     class func getRepositoriesWithCompletion(completion: (NSArray) -> ()) {
         let urlString = "\(Secrets.githubAPIURL)repositories?client_id=\(Secrets.clientID)&client_secret=\(Secrets.secret)"
         let url = NSURL(string: urlString)
-        // print(url)
         let session = NSURLSession.sharedSession()
         
         guard let unwrappedURL = url else { fatalError("Invalid URL") }
@@ -29,7 +28,7 @@ class GithubAPIClient {
         task.resume()
     }
     
-    func checkIfRepositoryIsStarred(fullName: String, completion: (Bool) -> ()) {
+    class func checkIfRepositoryIsStarred(fullName: String, completion: (Bool) -> ()) {
         let urlString = "\(Secrets.githubAPIURL)/user/starred/\(fullName)?access_token\(Secrets.token)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
@@ -51,7 +50,7 @@ class GithubAPIClient {
         task.resume()
     }
     
-    func starRepository(fullName: String, completion: () -> ()) {
+    class func starRepository(fullName: String, completion: () -> ()) {
         let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
@@ -73,7 +72,7 @@ class GithubAPIClient {
         task.resume()
     }
     
-    func unstarRepository(repository: GithubRepository, completion: () -> ()) {
+    class func unstarRepository(repository: GithubRepository, completion: () -> ()) {
         let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
