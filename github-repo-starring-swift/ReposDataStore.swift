@@ -22,7 +22,6 @@ class ReposDataStore {
                 guard let repoDictionary = dictionary as? NSDictionary else { fatalError("Object in reposArray is of non-dictionary type") }
                 let repository = GithubRepository(dictionary: repoDictionary)
                 self.repositories.append(repository)
-                
             }
             completion()
         }

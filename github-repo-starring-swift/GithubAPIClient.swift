@@ -10,8 +10,6 @@ import UIKit
 
 class GithubAPIClient {
     
-    
-    
     class func getRepositoriesWithCompletion(completion: (NSArray) -> ()) {
         let urlString = "\(Secrets.githubAPIURL)repositories?client_id=\(Secrets.clientID)&client_secret=\(Secrets.secret)"
         let url = NSURL(string: urlString)
@@ -32,7 +30,7 @@ class GithubAPIClient {
     }
     
     func checkIfRepositoryIsStarred(fullName: String, completion: (Bool) -> ()) {
-        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
+        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(fullName)?access_token\(Secrets.token)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
         
@@ -40,7 +38,7 @@ class GithubAPIClient {
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
         
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue(Secrets.token, forHTTPHeaderField: "Authorization")
+            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
             githubRequest.HTTPMethod = "GET"
             if let data = data {githubRequest.HTTPBody = NSData(data: data)}
             let httpResponse = response as! NSHTTPURLResponse
@@ -62,7 +60,7 @@ class GithubAPIClient {
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
         
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue(Secrets.token, forHTTPHeaderField: "Authorization")
+            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
             githubRequest.HTTPMethod = "PUT"
             if let data = data {githubRequest.HTTPBody = NSData(data: data)}
             let httpResponse = response as! NSHTTPURLResponse
@@ -84,7 +82,7 @@ class GithubAPIClient {
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
         
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue(Secrets.token, forHTTPHeaderField: "Authorization")
+            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
             githubRequest.HTTPMethod = "DELETE"
             if let data = data {githubRequest.HTTPBody = NSData(data: data)}
             let httpResponse = response as! NSHTTPURLResponse
@@ -96,7 +94,4 @@ class GithubAPIClient {
         }
         task.resume()
     }
-    
-    
-    
 }
