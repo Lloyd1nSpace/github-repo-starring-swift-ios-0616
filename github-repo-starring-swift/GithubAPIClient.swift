@@ -29,7 +29,8 @@ class GithubAPIClient {
     }
     
     class func checkIfRepositoryIsStarred(fullName: String, completion: (Bool) -> ()) {
-        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(fullName)?access_token\(Secrets.token)"
+        let urlString = "\(Secrets.githubAPIURL)user/starred/\(fullName)?access_token=\(Secrets.token)"
+        print(urlString)
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
         
@@ -37,13 +38,14 @@ class GithubAPIClient {
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
         
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
             githubRequest.HTTPMethod = "GET"
-            if let data = data {githubRequest.HTTPBody = NSData(data: data)}
+          //  if let data = data {githubRequest.HTTPBody = NSData(data: data)}
             let httpResponse = response as! NSHTTPURLResponse
             if httpResponse.statusCode == 204 {
+                print("Checking...Repo is starred!")
                 completion(true)
-            } else if httpResponse.statusCode == 404 {
+            } else  {
+                print("Checking...Repo is not starred!")
                 completion(false)
             }
         }
@@ -51,45 +53,37 @@ class GithubAPIClient {
     }
     
     class func starRepository(fullName: String, completion: () -> ()) {
-        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
+        let urlString = "\(Secrets.githubAPIURL)user/starred/\(fullName)?access_token=\(Secrets.token)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
         
         guard let unwrappedURL = url else { fatalError("Invalid URL") }
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
-        
+        githubRequest.HTTPMethod = "PUT"
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
-            githubRequest.HTTPMethod = "PUT"
+            
             if let data = data {githubRequest.HTTPBody = NSData(data: data)}
-            let httpResponse = response as! NSHTTPURLResponse
-            if httpResponse.statusCode == 204 {
+            guard let httpResponse = response as? NSHTTPURLResponse else {fatalError("Couldn't get response for starRepository!!!!")}
+                print("Repository Starred: Status code \(httpResponse.statusCode)")
                 completion()
-            } else {
-                print(error)
-            }
         }
         task.resume()
     }
     
-    class func unstarRepository(repository: GithubRepository, completion: () -> ()) {
-        let urlString = "\(Secrets.githubAPIURL)/user/starred/\(Secrets.clientID)/\(Secrets.secret)"
+    class func unstarRepository(fullName: String, completion: () -> ()) {
+        let urlString = "\(Secrets.githubAPIURL)user/starred/\(fullName)?access_token=\(Secrets.token)"
         let url = NSURL(string: urlString)
         let session = NSURLSession.sharedSession()
         
         guard let unwrappedURL = url else { fatalError("Invalid URL") }
         let githubRequest = NSMutableURLRequest(URL: unwrappedURL)
-        
+        githubRequest.HTTPMethod = "DELETE"
         let task = session.dataTaskWithRequest(githubRequest) { (data, response, error) in
-            githubRequest.addValue("token \(Secrets.token)", forHTTPHeaderField: "Authorization")
-            githubRequest.HTTPMethod = "DELETE"
-            if let data = data {githubRequest.HTTPBody = NSData(data: data)}
-            let httpResponse = response as! NSHTTPURLResponse
-            if httpResponse.statusCode == 204 {
+            
+           // if let data = data {githubRequest.HTTPBody = NSData(data: data)}
+            guard let httpResponse = response as? NSHTTPURLResponse else {fatalError("Couldn't get response for unstarRepository!!!!")}
+                print("Repository Unstarred: Status code \(httpResponse.statusCode)")
                 completion()
-            } else {
-                print(error)
-            }
         }
         task.resume()
     }
